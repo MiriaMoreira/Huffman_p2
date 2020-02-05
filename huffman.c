@@ -2,24 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct huffman{
+typedef struct huffman{
 	unsigned char caractere;
 	int frequencia;
 	struct huffman *next;
 	struct huffman *left;
 	struct huffman *right;
-};
+}node;
 
-struct hash_table{
+typedef struct hash_table{
 	int h;
 	unsigned short map;
-};
-typedef struct hash_table ht;
+}ht;
 
 ht *caracteres[256];
-
-
-typedef struct huffman node;
 
 node *add(node *head, unsigned char caractere){
 	node *aux = head, *new;
@@ -166,12 +162,10 @@ int map_b(char s[], map *map_head){
 
     unsigned char c;
     while(fscanf(file,"%c", &c) != EOF){
-		//printf("%c\n",c);
         pos = (int)c;
         h = caracteres[pos]->h;
         for(i = h-1 ; i >= 0 ; i--){
 			if(cont == 8){
-				//printf("%d\n",(short)tail->byte);
 				tail = add_byte(tail);
 				cont = 0;
 			}
@@ -189,7 +183,6 @@ int map_b(char s[], map *map_head){
 }
 unsigned short trash(unsigned short lixo){
 	lixo = lixo<<12;
-    //printf("%d",lixo);
 	return lixo;
 }
 unsigned short tree(unsigned short inf, unsigned short tam){
@@ -209,9 +202,7 @@ int main(){
 
 	if(file != NULL){
         while(fscanf(file,"%c",&caractere) != EOF){
-            //printf("%c\n",caractere);
             head = add(head,caractere);
-            //printf("hi");
         }
     }
     fclose(file);
@@ -224,13 +215,18 @@ int main(){
 
     tam_arv = map_arvore(head,0,0,0);
 	lixo = map_b(s,map_head);
+	char n[100];
+	printf("Digite o nome do arquivo.huff:\n");
+	scanf(" %s",n);
+	new = fopen(n,"wb");
 
-	new = fopen("arvore.huff","wb");
-	
 	if(new != NULL){
 		unsigned short info = trash(lixo);
 		info = tree(info,tam_arv);
-		fprintf(file,"%d",info);
+		unsigned char first_byte, second_byte;
+		first_byte = (unsigned char)(info>>7);
+		second_byte = (unsigned char)info;
+		fprintf(file,"%c%c",first_byte,second_byte);
 		printar(head, new);
 		while(map_head != NULL){
 			fprintf(file,"%c",map_head->byte);
@@ -238,6 +234,5 @@ int main(){
 		}
 	}
     fclose(new);
-	//printf("\n");
 	return 0;
 }

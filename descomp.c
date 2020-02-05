@@ -27,15 +27,19 @@ void cria_ht(){
     }
 }
 unsigned short lixo(unsigned short c){
-    c = c>>12;
-    //printf("%d\n",c);
-    return c;
+    c = c>>5;
+    unsigned short d;
+    d = (unsigned short)c;
+    return d;
 }
-unsigned short *arv_tam(unsigned short d){
-    d = d << 4;
-    d = d >> 4;
-    unsigned short *c;
-    c = &d;
+unsigned short *arv_tam(unsigned char a,unsigned char b){
+    a = a << 3;
+    a = a >> 3;
+    int  i;
+    unsigned short d = (unsigned short)a;
+    d = d<<7;
+    d = d|b;
+    unsigned short *c = &d;
     return c;
 }
 lista *add_node(lista *tail,unsigned char c){
@@ -51,38 +55,9 @@ tree *create_node(unsigned char c){
     tree->left = NULL;
     tree->right = NULL;
 }
-/*tree *add_arv(lista *head){
-    //printf(":( ");
-    lista *aux = head->next;
-    tree *node;
-    unsigned char c = aux->caractere;
-    if(aux == NULL) return NULL;
-    //printf("%c\n",aux->caractere);
-    if(aux->caractere != '*'){
-        if(aux->caractere == '\\'){
-            head->next = aux->next;
-            free(aux);
-            aux = head->next;    
-        }
-        node = create_node(aux);
-        head->next = aux->next;
-        free(aux);
-    }
-    else{
-        node = create_node(aux);
-        head->next = aux->next;
-        free(aux);
-        if(c == '*'){
-            node->left = add_arv(head);
-            node->right = add_arv(head);
-        }
-    }
-    return node;
-}*/
 tree *add_arv(FILE *file,unsigned short *cont){
-    //printf("contador = %d\n",*cont);
     unsigned short a = *cont;
-    if(*cont == 0) return NULL;
+    if(a == 0) return NULL;
     tree *node;
     unsigned char c;
     fscanf(file,"%c",&c);
@@ -106,7 +81,6 @@ tree *add_arv(FILE *file,unsigned short *cont){
 }
 void printar(tree *head){
 	if(head != NULL){
-		//printf("%c",head->caractere);
 		printar(head->left);
 		printar(head->right);
 	}
@@ -120,29 +94,21 @@ void map(lista *head,tree *raiz,short lixo){
     int cont = 8 - lixo,i;
     FILE *file;
     char c[100];
-    printf("Digite o nome do novo arquivo: ");
+    printf("Digite o nome do novo arquivo: \n");
     scanf("%s",c);
     file = fopen(c,"wb");
-    fclose(file);
+    
     tree *aux = raiz;
-    while(head != NULL && file != NULL){
+    while(head != NULL){
+        //printf("hi\n");
         for(i=7;i>=0;i--){
-            //printf("cont = %d\n",i);
             if(bit_is_set(head->caractere,i)){
-                //printf("1 ");
-                if(aux->right != NULL)aux = aux->right;
-                //printf("caractere %c\n", aux->caractere);
+                aux = aux->right;
             } else {
-                //printf("0 ");
-                if(aux->left != NULL) aux = aux->left;
-                //printf("caractere %c\n", aux->caractere);
+                aux = aux->left;
             }
             if(aux->left == NULL && aux->right == NULL){
-                //printf("hi3\n");
-                file = fopen(c,"ab");
                 fprintf(file,"%c",aux->caractere);
-                fclose(file);
-                //printf("%c\n",aux->caractere);
                 aux = raiz;
             }
             if(head->next == NULL){
@@ -150,14 +116,14 @@ void map(lista *head,tree *raiz,short lixo){
                 if(cont == 0) break;
             }
         }
-        //printf("\n");
         head = head->next;
     }
+    fclose(file);
 }
 int main(){
     FILE *file;
     char s[100];
-    unsigned char c;
+    unsigned char a,b,c;
     scanf(" %s",s);
     unsigned short trash, *tree_size,d,i;
     lista *tail = NULL, *byte_head = NULL;
@@ -165,14 +131,12 @@ int main(){
 
     file = fopen(s,"rb");
     if(file != NULL){
-        fscanf(file,"%hd",&d);
-        trash = lixo(d);
-        tree_size = arv_tam(d);
+        fscanf(file,"%c%c",&a,&b);
+        trash = lixo(a);
+        tree_size = arv_tam(a,b);
     }
     raiz = add_arv(file,tree_size);
-    //printar(raiz);
     while(fscanf(file,"%c",&c) != EOF){
-        //printf("%c\n",c);
         tail = add_node(tail,c);
         if(byte_head == NULL) byte_head = tail;
     }
